@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>For You</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Playfair+Display:ital,wght@0,600;1,500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --hero:#0041f4;
+    --write:#00207a;
+    --cream:#f3eee0;
+    --gold:#e9c46a;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--write);
+    font-family:'Cormorant Garamond', serif;
+    color:var(--cream);
+  }
+
+  /* ======================= INTRO / HERO ======================= */
+  .hero-wrap{
+    position:relative;
+    height:320vh;   /* scroll distance that drives the curtain animation */
+  }
+  .hero-sticky{
+    position:sticky;
+    top:0;
+    height:100vh;
+    overflow:hidden;
+  }
+
+  /* ---- layer 1 (bottom): the polaroid wall revealed behind the flowers ---- */
+  .reveal{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:
+      radial-gradient(ellipse at center, rgba(233,196,106,0.08), transparent 60%),
+      var(--hero);
+  }
+
+  .polaroid-wall{
+    position:absolute;
+    inset:-6% -3%;
+    opacity:.92;
+  }
+  .polaroid{
+    position:absolute;
+    width:clamp(120px, 15.5vw, 210px);
+    background:#efe9df;
+    padding:8px 8px 28px;
+    border-radius:2px;
+    box-shadow:0 10px 22px rgba(0,0,0,.35);
+    transform:translate(-50%,-50%) rotate(var(--r));
+  }
+  .polaroid img{
+    display:block;
+    width:100%;
+    aspect-ratio:4/5;
+    object-fit:cover;
+  }
+
+  .love-message{
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    text-align:center;
+    z-index:3;
+    padding:1.6rem 2.2rem;
+    width:min(90vw, 720px);
+  }
+  .love-message::before{
+    content:"";
+    position:absolute;
+    inset:-10% -6%;
+    background:radial-gradient(ellipse at center, rgba(4,32,43,.72), transparent 72%);
+    z-index:-1;
+  }
+  .love-message h2{
+    font-family:'Playfair Display', serif;
+    font-style:italic;
+    font-weight:500;
+    font-size:clamp(1.7rem, 5vw, 3.2rem);
+    line-height:1.2;
+    margin:0;
+    color:var(--cream);
+  }
+  .love-message .cursor{
+    display:inline-block;
+    width:2px;
+    margin-left:2px;
+    background:var(--cream);
+    animation:blink 1s step-end infinite;
+  }
+  @keyframes blink{ 50%{ opacity:0; } }
+
+  .go-start{
+    position:absolute;
+    right:clamp(1rem, 4vw, 2.5rem);
+    bottom:clamp(1rem, 4vw, 2.5rem);
+    z-index:4;
+    font-family:'Cormorant Garamond', serif;
+    font-style:italic;
+    font-size:1rem;
+    letter-spacing:.02em;
+    background:var(--cream);
+    color:var(--write);
+    border:none;
+    padding:.7rem 1.4rem;
+    border-radius:999px;
+    cursor:pointer;
+    opacity:0;
+    transform:translateY(8px);
+    transition:opacity .5s ease, transform .5s ease, background .25s ease;
+    pointer-events:none;
+  }
+  .go-start:hover{ background:var(--gold); }
+  .go-start.show{
+    opacity:1;
+    transform:translateY(0);
+    pointer-events:auto;
+  }
+
+  /* ---- scroll hint shown before any scrolling ---- */
+  .scroll-hint{
+    position:absolute;
+    left:50%;
+    bottom:6%;
+    transform:translateX(-50%);
+    z-index:5;
+    text-align:center;
+    color:var(--cream);
+    letter-spacing:.35em;
+    font-size:.8rem;
+    text-transform:uppercase;
+    transition:opacity .4s ease;
+  }
+  .scroll-hint span{
+    display:block;
+    margin-top:.6rem;
+    font-size:1.1rem;
+    animation:bob 1.8s ease-in-out infinite;
+  }
+  @keyframes bob{
+    0%,100%{ transform:translateY(0); }
+    50%{ transform:translateY(8px); }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+  }
+
+  /* ======================= SECTION BLEND ======================= */
+  .section-blend{
+    position:relative;
+    height:clamp(160px, 26vh, 320px);
+    background:linear-gradient(to bottom, var(--hero) 0%, var(--write) 100%);
+  }
+  .section-blend::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:radial-gradient(ellipse at center, rgba(233,196,106,0.10), transparent 65%);
+  }
+
+  /* ======================= LETTER SECTION ======================= */
+  .letter-wrap{
+    position:relative;
+    /* extra scroll distance so each line gets room to reveal one at a time */
+    height:620vh;
+    background:var(--write);
+  }
+  .letter-sticky{
+    position:sticky;
+    top:0;
+    height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+  }
+  .letter-sticky::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+      radial-gradient(ellipse at 50% 15%, rgba(233,196,106,0.06), transparent 55%),
+      var(--write);
+    pointer-events:none;
+  }
+
+  .letter-card{
+    position:relative;
+    z-index:2;
+    width:min(88vw, 560px);
+    max-height:82vh;
+    overflow:hidden;
+    padding:clamp(1.6rem, 4vw, 3rem) clamp(1.4rem, 5vw, 3.2rem);
+    border:1px solid rgba(233,196,106,0.35);
+    border-radius:6px;
+    background:rgba(0,32,122,0.35);
+    box-shadow:0 30px 70px rgba(0,0,0,.45);
+  }
+
+  .letter-line{
+    font-size:clamp(.95rem, 2.1vw, 1.18rem);
+    line-height:1.75;
+    text-align:center;
+    color:var(--cream);
+    margin:0 0 1.1em;
+    opacity:0;
+    transform:translateY(14px);
+    filter:blur(2px);
+    transition:opacity .7s ease, transform .7s ease, filter .7s ease;
+  }
+  .letter-line.visible{
+    opacity:1;
+    transform:translateY(0);
+    filter:blur(0);
+  }
+  .letter-line.salutation{
+    font-family:'Playfair Display', serif;
+    font-style:italic;
+    font-size:clamp(1.1rem, 2.6vw, 1.5rem);
+    margin-bottom:1.4em;
+  }
+  .letter-line.signoff{
+    font-family:'Playfair Display', serif;
+    font-style:italic;
+    margin-bottom:.4em;
+  }
+  .letter-line.gap{
+    margin-bottom:.2em;
+  }
+
+  /* the on-screen "scroll" instruction for this section */
+  .letter-scroll-hint{
+    position:absolute;
+    left:50%;
+    bottom:5%;
+    transform:translateX(-50%);
+    z-index:5;
+    text-align:center;
+    color:var(--cream);
+    letter-spacing:.35em;
+    font-size:.75rem;
+    text-transform:uppercase;
+    opacity:1;
+    transition:opacity .4s ease;
+  }
+  .letter-scroll-hint span{
+    display:block;
+    margin-top:.55em;
+    font-size:1rem;
+    animation:bob 1.8s ease-in-out infinite;
+  }
+
+  .letter-progress{
+    position:absolute;
+    left:50%;
+    top:6%;
+    transform:translateX(-50%);
+    z-index:5;
+    width:min(60vw, 260px);
+    height:2px;
+    background:rgba(243,238,224,0.15);
+    border-radius:2px;
+    overflow:hidden;
+  }
+  .letter-progress-bar{
+    height:100%;
+    width:0%;
+    background:var(--gold);
+    transition:width .1s linear;
+  }
+
+  /* ---- hearts that fall while scrolling through the letter section ---- */
+  .falling-hearts{
+    position:absolute;
+    inset:0;
+    overflow:hidden;
+    pointer-events:none;
+    z-index:4;
+  }
+  .falling-heart{
+    position:absolute;
+    top:-40px;
+    line-height:1;
+    color:var(--cream);
+    text-shadow:0 0 8px rgba(233,196,106,0.35);
+    will-change:transform, opacity;
+    animation-name:heart-fall;
+    animation-timing-function:linear;
+    animation-fill-mode:forwards;
+  }
+  @keyframes heart-fall{
+    0%{ transform:translateY(0) translateX(0) rotate(0deg); opacity:0; }
+    8%{ opacity:var(--heart-op, .75); }
+    85%{ opacity:var(--heart-op, .75); }
+    100%{ transform:translateY(105vh) translateX(var(--drift, 0px)) rotate(var(--spin, 90deg)); opacity:0; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .falling-hearts{ display:none; }
+  }
+
+  /* ======================= SONGS SECTION ======================= */
+  .songs-blend{
+    position:relative;
+    height:clamp(120px, 20vh, 240px);
+    background:linear-gradient(to bottom, var(--write) 0%, #2a0810 100%);
+  }
+  .songs-blend::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:radial-gradient(ellipse at center, rgba(233,196,106,0.08), transparent 65%);
+  }
+
+  .songs-section{
+    position:relative;
+    min-height:100vh;
+    padding:clamp(3.5rem, 8vh, 5.5rem) 6vw clamp(6rem, 12vh, 8rem);
+    background:
+      radial-gradient(ellipse at 50% 22%, rgba(150,30,40,.5), transparent 62%),
+      linear-gradient(180deg, #4a0f1c 0%, #300a14 55%, #1c0509 100%);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    overflow:hidden;
+  }
+
+  .songs-header{
+    text-align:center;
+    margin-bottom:clamp(2.4rem, 6vh, 3.6rem);
+  }
+  .songs-header h2{
+    font-family:'Playfair Display', serif;
+    font-style:italic;
+    font-weight:600;
+    font-size:clamp(2rem, 6vw, 3.4rem);
+    color:var(--cream);
+    margin:0 0 .6rem;
+  }
+  .songs-sub{
+    letter-spacing:.38em;
+    text-transform:uppercase;
+    font-size:clamp(.7rem, 1.6vw, .85rem);
+    color:rgba(243,238,224,.72);
+    margin:0;
+  }
+
+  .songs-grid{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:1.6rem;
+    max-width:1120px;
+    width:100%;
+  }
+  .song-card{
+    width:min(340px, 100%);
+    border-radius:14px;
+    overflow:hidden;
+    box-shadow:0 18px 40px rgba(0,0,0,.45);
+    background:#121212;
+    line-height:0;
+  }
+  .song-card iframe{
+    display:block;
+    width:100%;
+    height:152px;
+    border:0;
+  }
+  .song-open-link{
+    display:block;
+    text-align:center;
+    font-family:'Cormorant Garamond', serif;
+    font-style:italic;
+    font-size:.95rem;
+    letter-spacing:.02em;
+    color:var(--cream);
+    background:#1a1a1a;
+    padding:.55rem 0;
+    text-decoration:none;
+    border-top:1px solid rgba(233,196,106,0.18);
+    transition:background .2s ease, color .2s ease;
+  }
+  .song-open-link:hover{
+    background:#232323;
+    color:var(--gold);
+  }
+
+  /* ======================= MOON SECTION ======================= */
+  .moon-section{
+    position:relative;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:2rem;
+    background:
+      radial-gradient(ellipse at 50% 40%, rgba(150,30,40,.5), transparent 62%),
+      linear-gradient(180deg, #1c0509 0%, #300a14 45%, #1c0509 100%);
+    overflow:hidden;
+  }
+  .moon-text{
+    font-family:'Playfair Display', serif;
+    font-style:italic;
+    font-weight:500;
+    font-size:clamp(1.8rem, 6vw, 3.6rem);
+    line-height:1.3;
+    text-align:center;
+    color:var(--cream);
+    max-width:16ch;
+    margin:0;
+  }
+  .moon-text .cursor{
+    display:inline-block;
+    width:2px;
+    margin-left:2px;
+    background:var(--cream);
+    animation:blink 1s step-end infinite;
+  }
+
+  @media (max-width:600px){
+    .hero-wrap{ height:360vh; }
+    .letter-wrap{ height:760vh; }
+    .song-card{ width:100%; max-width:420px; }
+    .polaroid{ width:clamp(78px, 21vw, 110px); }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero-wrap" id="heroWrap">
+  <div class="hero-sticky">
+
+    <div class="reveal">
+      <div class="polaroid-wall" id="polaroidWall"><!-- filled by JS --></div>
+      <div class="love-message">
+        <h2 id="loveText"></h2>
+      </div>
+      <button class="go-start" id="goStart">&uarr; Go to the start</button>
+    </div>
+
+    <div class="scroll-hint" id="scrollHint">
+      Scroll
+      <span>&darr;</span>
+    </div>
+
+  </div>
+</div>
+
+<div class="section-blend"></div>
+
+<div class="letter-wrap" id="letterWrap">
+  <div class="letter-sticky">
+
+    <div class="letter-progress"><div class="letter-progress-bar" id="letterProgressBar"></div></div>
+
+    <div class="falling-hearts" id="fallingHearts"></div>
+
+    <div class="letter-card" id="letterCard"><!-- lines filled by JS --></div>
+
+    <div class="letter-scroll-hint" id="letterScrollHint">
+      Scroll
+      <span>&darr;</span>
+    </div>
+
+  </div>
+</div>
+
+<div class="songs-blend"></div>
+
+<div class="songs-section" id="songsSection">
+  <div class="songs-header">
+    <h2>Our Top Songs</h2>
+    <p class="songs-sub">The soundtrack of us</p>
+  </div>
+
+  <div class="songs-grid">
+    <div class="song-card">
+  <iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/track/4Hvf9xIeJWp5p9FkJerQhN?utm_source=generator&theme=0&si=acfa3dff1c0141c5" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+  <a class="song-open-link" href="https://open.spotify.com/track/4Hvf9xIeJWp5p9FkJerQhN" target="_blank" rel="noopener">Open in Spotify &rarr;</a>
+    </div>
+    <div class="song-card">
+<iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/track/2nMeu6UenVvwUktBCpLMK9?utm_source=generator&theme=0&si=0d764ca89ec64c10" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+<a class="song-open-link" href="https://open.spotify.com/track/2nMeu6UenVvwUktBCpLMK9" target="_blank" rel="noopener">Open in Spotify &rarr;</a>
+    </div>
+    <div class="song-card">
+<iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/track/2DuSOhSGErKOfQSAtoKlKv?utm_source=generator&theme=0&si=6ec8b49dcd084013" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+<a class="song-open-link" href="https://open.spotify.com/track/2DuSOhSGErKOfQSAtoKlKv" target="_blank" rel="noopener">Open in Spotify &rarr;</a>
+    </div>
+    <div class="song-card">
+<iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/track/6G9YlbU3ByPJQvOFDRdwyM?utm_source=generator&theme=0&si=6c42e089f4714e9e" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+<a class="song-open-link" href="https://open.spotify.com/track/6G9YlbU3ByPJQvOFDRdwyM" target="_blank" rel="noopener">Open in Spotify &rarr;</a>
+    </div>
+    <div class="song-card">
+<iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/track/5XeFesFbtLpXzIVDNQP22n?utm_source=generator&theme=0&si=4c1714a085e74c89" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+<a class="song-open-link" href="https://open.spotify.com/track/5XeFesFbtLpXzIVDNQP22n" target="_blank" rel="noopener">Open in Spotify &rarr;</a>
+    </div>
+  </div>
+
+  <button class="go-start show songs-go-start" id="goStartSongs">&uarr; Go to the start</button>
+</div>
+
+<div class="moon-section" id="moonSection">
+  <h2 class="moon-text" id="moonText"></h2>
+</div>
+
+<script>
+  /* ======================= HERO (unchanged) ======================= */
+  const MESSAGE = "Happy girlfriend's day, baby";
+  const PHOTO_COUNT = 8;
+  const PHOTO_ROTATIONS = [-6, 4, -3, 7, -8, 2, 5, -4];
+
+  const wall = document.getElementById('polaroidWall');
+
+  const isMobileLayout = window.innerWidth <= 600;
+  const rows = isMobileLayout ? 4 : 2;
+  const cols = Math.ceil(PHOTO_COUNT / rows);
+  const cellW = 100 / cols;
+  const cellH = 100 / rows;
+
+  for (let i = 0; i < PHOTO_COUNT; i++) {
+    const col = i % cols;
+    const row = Math.floor(i / cols);
+
+    const baseLeft = col * cellW + cellW / 2;
+    const baseTop = row * cellH + cellH / 2;
+    const jitterX = 0;
+    const jitterY = 0;
+
+    const div = document.createElement('div');
+    div.className = 'polaroid';
+    div.style.left = (baseLeft + jitterX) + '%';
+    div.style.top = (baseTop + jitterY) + '%';
+    div.style.zIndex = String(Math.floor(Math.random() * PHOTO_COUNT) + 1);
+    const rot = PHOTO_ROTATIONS[i % PHOTO_ROTATIONS.length] + (Math.random() - 0.5) * 4;
+    div.style.setProperty('--r', rot + 'deg');
+
+    const img = document.createElement('img');
+    img.src = `photo${String(i + 1).padStart(2, '0')}.jpg`;
+    img.alt = '';
+    div.appendChild(img);
+    wall.appendChild(div);
+  }
+
+  const heroWrap = document.getElementById('heroWrap');
+  const loveText = document.getElementById('loveText');
+  const scrollHint = document.getElementById('scrollHint');
+  const goStart = document.getElementById('goStart');
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function renderHero() {
+    const rect = heroWrap.getBoundingClientRect();
+    const scrollable = heroWrap.offsetHeight - window.innerHeight;
+    const progress = Math.min(1, Math.max(0, -rect.top / scrollable));
+
+    const typeP = Math.min(1, Math.max(0, (progress - 0.15) / 0.6));
+    const chars = Math.round(typeP * MESSAGE.length);
+    const shown = MESSAGE.slice(0, chars);
+    loveText.innerHTML = shown + (typeP < 1 ? '<span class="cursor">&nbsp;</span>' : '');
+
+    scrollHint.style.opacity = progress > 0.03 ? 0 : 1;
+
+    if (progress > 0.92) goStart.classList.add('show');
+    else goStart.classList.remove('show');
+  }
+
+  goStart.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+  });
+
+  /* ======================= SONGS SECTION ======================= */
+  const goStartSongs = document.getElementById('goStartSongs');
+  if (goStartSongs) {
+    goStartSongs.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+    });
+  }
+
+  /* ======================= LETTER (line-by-line reveal on scroll) ======================= */
+  // Each entry is one "line" that reveals on its own. Blank strings become
+  // spacing between paragraphs; the salutation/sign-off get their own styling.
+  const LETTER_LINES = [
+    { text: "My Dearest,", cls: "salutation" },
+    { text: "" },
+
+    { text: "I am writing this because words sometimes catch in my throat when I look at you, overwhelmed by how much you mean to me." },
+    { text: "Please keep this little note as a token of my heart\u2014a small reminder of a love that belongs entirely to you, even when we are apart." },
+    { text: "" },
+
+    { text: "Lately, the distance between us feels a little heavier, and I find myself yearning for you in the quietest moments of the day." },
+    { text: "" },
+
+    { text: "You have my whole heart, today and for all the days to come." },
+    { text: "" },
+
+    { text: "Forever and always yours,", cls: "signoff" },
+    { text: "With all my love", cls: "signoff" }
+  ];
+
+  const letterCard = document.getElementById('letterCard');
+  const lineEls = [];
+
+  LETTER_LINES.forEach(item => {
+    const el = document.createElement('p');
+    el.className = 'letter-line' + (item.cls ? ' ' + item.cls : '') + (item.text === '' ? ' gap' : '');
+    el.textContent = item.text === '' ? '\u00A0' : item.text;
+    letterCard.appendChild(el);
+    lineEls.push(el);
+  });
+
+  const letterWrap = document.getElementById('letterWrap');
+  const letterScrollHint = document.getElementById('letterScrollHint');
+  const letterProgressBar = document.getElementById('letterProgressBar');
+  const fallingHearts = document.getElementById('fallingHearts');
+
+  function spawnHeart() {
+    const heart = document.createElement('span');
+    heart.className = 'falling-heart';
+    heart.textContent = '♡';
+
+    const left = Math.random() * 100;
+    const size = 10 + Math.random() * 18;
+    const duration = (2.4 + Math.random() * 2.6).toFixed(2); // fast, rain-like fall
+    const drift = Math.round(Math.random() * 60 - 30) + 'px';
+    const spin = Math.round(Math.random() * 100 - 50) + 'deg';
+    const op = (0.45 + Math.random() * 0.45).toFixed(2);
+
+    heart.style.left = left + '%';
+    heart.style.fontSize = size + 'px';
+    heart.style.animationDuration = duration + 's';
+    heart.style.setProperty('--drift', drift);
+    heart.style.setProperty('--spin', spin);
+    heart.style.setProperty('--heart-op', op);
+    if (Math.random() < 0.35) heart.style.color = 'var(--gold)';
+
+    heart.addEventListener('animationend', () => heart.remove());
+    fallingHearts.appendChild(heart);
+  }
+
+  function isLetterInView() {
+    const rect = letterWrap.getBoundingClientRect();
+    return rect.top < window.innerHeight && rect.bottom > 0;
+  }
+
+  // Extra burst on scroll, on top of the steady rain below, so scrolling
+  // faster visibly makes more hearts fall.
+  let lastHeartBurst = 0;
+  function maybeSpawnHearts(inView) {
+    if (!inView) return;
+    const now = Date.now();
+    if (now - lastHeartBurst < 90) return;
+    lastHeartBurst = now;
+    spawnHeart();
+    if (Math.random() < 0.6) spawnHeart();
+  }
+
+  // Continuous rain: as long as the letter section is on screen, keep
+  // several hearts falling at all times — not dependent on scroll ticks.
+  setInterval(() => {
+    if (!isLetterInView()) return;
+    spawnHeart();
+    spawnHeart();
+    if (Math.random() < 0.7) spawnHeart();
+  }, 160);
+
+  function renderLetter() {
+    const rect = letterWrap.getBoundingClientRect();
+    const scrollable = letterWrap.offsetHeight - window.innerHeight;
+    const progress = Math.min(1, Math.max(0, -rect.top / scrollable));
+    const inView = isLetterInView();
+
+    letterProgressBar.style.width = (progress * 100) + '%';
+
+    // hide the "scroll" hint once the person starts scrolling into this section
+    letterScrollHint.style.opacity = progress > 0.02 ? 0 : 1;
+
+    // reveal lines one at a time as progress advances, each getting its
+    // own slice of the total scroll distance
+    const n = lineEls.length;
+    const revealCount = Math.floor(progress * n) + (progress > 0 ? 1 : 0);
+
+    lineEls.forEach((el, i) => {
+      if (i < revealCount) el.classList.add('visible');
+      else el.classList.remove('visible');
+    });
+
+    maybeSpawnHearts(inView);
+  }
+
+  let ticking = false;
+  function onScroll() {
+    if (!ticking) {
+      requestAnimationFrame(() => {
+        renderHero();
+        renderLetter();
+        ticking = false;
+      });
+      ticking = true;
+    }
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  // Debounced resize handler: mobile browsers fire 'resize' constantly
+  // as the address bar collapses/expands while scrolling, which would
+  // otherwise recompute scrollable height far more often than needed.
+  let resizeTimer = null;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => { renderHero(); renderLetter(); }, 100);
+  });
+
+  renderHero();
+  renderLetter();
+
+  /* ======================= MOON SECTION (Natural Typewriter) ======================= */
+
+  const MOON_MESSAGE = "I love you, to the moon and back";
+  const moonText = document.getElementById("moonText");
+  const moonSection = document.getElementById("moonSection");
+
+  let moonTyped = false;
+
+  async function typeMoonMessage() {
+    if (moonTyped) return;
+    moonTyped = true;
+
+    moonText.innerHTML = '<span class="cursor">&nbsp;</span>';
+
+    for (let i = 1; i <= MOON_MESSAGE.length; i++) {
+      moonText.innerHTML =
+        MOON_MESSAGE.slice(0, i) +
+        '<span class="cursor">&nbsp;</span>';
+
+      let delay = 40 + Math.random() * 70;
+      const current = MOON_MESSAGE[i - 1];
+      if (current === " ") delay += 40;
+      if (current === "," || current === "." || current === "!") delay += 180;
+
+      await new Promise(resolve => setTimeout(resolve, reduceMotion ? 0 : delay));
+    }
+
+    await new Promise(resolve => setTimeout(resolve, 1200));
+    moonText.textContent = MOON_MESSAGE;
+  }
+
+  if ("IntersectionObserver" in window) {
+    const moonObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          typeMoonMessage();
+          moonObserver.disconnect();
+        }
+      });
+    }, { threshold: 0.45 });
+
+    moonObserver.observe(moonSection);
+  } else {
+    typeMoonMessage();
+  }
+
+</script>
+
+</body>
+</html>
